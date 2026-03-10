@@ -3,7 +3,7 @@ import * as fsPromises from "fs/promises";
 import * as path from "path";
 import { spawn, spawnSync } from "child_process";
 
-import * as vscode from "vscode";
+import type * as vscode from "vscode";
 
 import {
   EmbeddedGenerationResult,

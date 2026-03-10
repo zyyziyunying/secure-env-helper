@@ -1,0 +1,8 @@
+{
+  "displayName": "Secure Env Helper Example",
+  "envFile": ".env.secure_demo",
+  "envExampleFile": ".env.secure_demo.example",
+  "envDartFile": "lib/secure_env/example_secure_env.dart",
+  "outputKeyFile": "encryption_key.json",
+  "useFvm": "Auto"
+}
