@@ -6,13 +6,13 @@ It removes the need to remember:
 
 - which `tool/*secure_env*.json` file belongs to which project
 - which command to run
-- whether the project should use `pwsh`, `powershell`, `fvm flutter`, or plain `flutter`
+- whether the project should use `fvm flutter` or plain `flutter`
 
 The extension does four things:
 
 1. discover secure env config files in the current workspace
 2. resolve the nearest matching config for the active file or clicked resource
-3. run a shared generator script
+3. run `flutter_secure_dotenv_generator` through `flutter` or `fvm flutter`
 4. stream logs to the `Secure Env Generator` output channel
 
 ## Fast path
@@ -31,7 +31,7 @@ Then use either:
 - the explorer context menu
 - `Secure Env: Generate For Current Project`
 
-The extension resolves the matching config for that file and runs the shared generator for the right project.
+The extension resolves the matching config for that file and runs generation for the right project.
 
 ## Commands
 
@@ -57,18 +57,18 @@ The extension follows the shared generator contract already used in the originat
 
 ## Workspace contract
 
-By default the extension expects the host workspace to expose a shared script at:
+The extension executes the generation flow itself, but it still expects the host workspace to provide:
 
-```text
-packages/common/tool/regenerate_secure_env.ps1
-```
+- `tool/*secure_env*.json` style config files
+- a Dart env file containing `_encryptionKey` and `_iv`
+- `flutter_secure_dotenv_generator` configured for `build_runner`
+- `flutter` or `fvm`
 
-If your workspace uses a different path, override:
+The extension still discovers configs through:
 
-- `secureEnvGenerator.sharedScriptRelativePath`
 - `secureEnvGenerator.configGlobs`
 
-The actual generate/build logic stays in the host workspace. This repository only contains the VS Code integration layer.
+No workspace-local PowerShell script is required anymore.
 
 ## Local development
 

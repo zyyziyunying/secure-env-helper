@@ -58,16 +58,6 @@
           ],
           "description": "Workspace globs used to discover secure env config files."
         },
-        "secureEnvGenerator.sharedScriptRelativePath": {
-          "type": "string",
-          "default": "packages/common/tool/regenerate_secure_env.ps1",
-          "description": "Path to the shared secure env generator relative to the workspace root."
-        },
-        "secureEnvGenerator.preferPwsh": {
-          "type": "boolean",
-          "default": true,
-          "description": "Prefer PowerShell 7 (pwsh) over Windows PowerShell when both exist."
-        },
         "secureEnvGenerator.autoOpenOutput": {
           "type": "boolean",
           "default": true,
