@@ -1,0 +1,129 @@
+{
+  "name": "secure-env-helper",
+  "displayName": "Secure Env Helper",
+  "description": "Generate flutter_secure_dotenv secure env files from workspace config with one command.",
+  "version": "0.0.2",
+  "publisher": "local",
+  "license": "UNLICENSED",
+  "engines": {
+    "vscode": "^1.96.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "flutter",
+    "dotenv",
+    "secure env",
+    "workspace tooling"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "secureEnvGenerator.generateNearest",
+        "title": "Secure Env: Generate For Current Project",
+        "category": "Secure Env"
+      },
+      {
+        "command": "secureEnvGenerator.generate",
+        "title": "Secure Env: Pick Config And Generate",
+        "category": "Secure Env"
+      },
+      {
+        "command": "secureEnvGenerator.openConfig",
+        "title": "Secure Env: Open Config",
+        "category": "Secure Env"
+      },
+      {
+        "command": "secureEnvGenerator.showOutput",
+        "title": "Secure Env: Show Output",
+        "category": "Secure Env"
+      }
+    ],
+    "configuration": {
+      "title": "Secure Env Helper",
+      "properties": {
+        "secureEnvGenerator.configGlobs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "**/tool/secure_env.json",
+            "**/tool/*secure_env*.json"
+          ],
+          "description": "Workspace globs used to discover secure env config files."
+        },
+        "secureEnvGenerator.sharedScriptRelativePath": {
+          "type": "string",
+          "default": "packages/common/tool/regenerate_secure_env.ps1",
+          "description": "Path to the shared secure env generator relative to the workspace root."
+        },
+        "secureEnvGenerator.preferPwsh": {
+          "type": "boolean",
+          "default": true,
+          "description": "Prefer PowerShell 7 (pwsh) over Windows PowerShell when both exist."
+        },
+        "secureEnvGenerator.autoOpenOutput": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically reveal the extension output channel before running generation."
+        }
+      }
+    },
+    "menus": {
+      "editor/title": [
+        {
+          "command": "secureEnvGenerator.generateNearest",
+          "when": "resourceScheme == file && (resourceFilename == 'secure_env.json' || resourceFilename =~ /secure_env.*\\.json$/ || resourceFilename =~ /^\\.env\\./ || resourceFilename =~ /_env\\.dart$/)",
+          "group": "navigation@8"
+        },
+        {
+          "command": "secureEnvGenerator.openConfig",
+          "when": "resourceScheme == file && (resourceFilename == 'secure_env.json' || resourceFilename =~ /secure_env.*\\.json$/ || resourceFilename =~ /^\\.env\\./ || resourceFilename =~ /_env\\.dart$/)",
+          "group": "navigation@9"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "secureEnvGenerator.generateNearest",
+          "when": "resourceScheme == file && (resourceFilename == 'secure_env.json' || resourceFilename =~ /secure_env.*\\.json$/ || resourceFilename =~ /^\\.env\\./ || resourceFilename =~ /_env\\.dart$/)",
+          "group": "navigation@8"
+        },
+        {
+          "command": "secureEnvGenerator.openConfig",
+          "when": "resourceScheme == file && (resourceFilename == 'secure_env.json' || resourceFilename =~ /secure_env.*\\.json$/ || resourceFilename =~ /^\\.env\\./ || resourceFilename =~ /_env\\.dart$/)",
+          "group": "navigation@9"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "secureEnvGenerator.generateNearest",
+          "when": "explorerResourceIsFolder == false && resourceScheme == file && (resourceFilename == 'secure_env.json' || resourceFilename =~ /secure_env.*\\.json$/ || resourceFilename =~ /^\\.env\\./ || resourceFilename =~ /_env\\.dart$/)",
+          "group": "navigation@8"
+        },
+        {
+          "command": "secureEnvGenerator.openConfig",
+          "when": "explorerResourceIsFolder == false && resourceScheme == file && (resourceFilename == 'secure_env.json' || resourceFilename =~ /secure_env.*\\.json$/ || resourceFilename =~ /^\\.env\\./ || resourceFilename =~ /_env\\.dart$/)",
+          "group": "navigation@9"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "vsce package --allow-missing-repository"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.30",
+    "@types/vscode": "^1.96.0",
+    "@vscode/vsce": "^3.6.2",
+    "typescript": "^5.8.2"
+  }
+}
