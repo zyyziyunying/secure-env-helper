@@ -6,6 +6,8 @@ import { getSettings } from "./secureEnvSettings";
 import {
   SecureEnvCandidate,
   SecureEnvConfigFile,
+  SecureEnvDiscoveryIssue,
+  SecureEnvDiscoveryResult,
   UseFvm,
 } from "./secureEnvTypes";
 
@@ -14,13 +16,14 @@ const DEFAULT_OUTPUT_KEY_FILE = "encryption_key.json";
 export async function discoverCandidates(
   outputChannel: vscode.OutputChannel,
   showErrors = true,
-): Promise<SecureEnvCandidate[]> {
+): Promise<SecureEnvDiscoveryResult> {
   const workspaceFolders = vscode.workspace.workspaceFolders ?? [];
   if (workspaceFolders.length === 0) {
-    return [];
+    return { candidates: [], loadErrors: [] };
   }
 
   const seen = new Map<string, SecureEnvCandidate>();
+  const loadErrors: SecureEnvDiscoveryIssue[] = [];
   for (const workspaceFolder of workspaceFolders) {
     const configUris = await findConfigUris(workspaceFolder);
     for (const configUri of configUris) {
@@ -28,22 +31,32 @@ export async function discoverCandidates(
         const candidate = await loadCandidate(workspaceFolder, configUri);
         seen.set(normalizeFsPath(configUri.fsPath), candidate);
       } catch (error) {
+        const displayPath = getWorkspaceRelativePath(workspaceFolder, configUri);
+        const errorMessage = toErrorMessage(error);
         appendError(
           outputChannel,
-          `Failed to load secure env config ${configUri.fsPath}: ${toErrorMessage(error)}`,
+          `Failed to load secure env config ${configUri.fsPath}: ${errorMessage}`,
         );
+        loadErrors.push({
+          configUri,
+          displayPath,
+          errorMessage,
+        });
         if (showErrors) {
           void vscode.window.showWarningMessage(
-            `Failed to load secure env config: ${vscode.workspace.asRelativePath(configUri)}`,
+            `Failed to load secure env config ${displayPath}: ${errorMessage}`,
           );
         }
       }
     }
   }
 
-  return Array.from(seen.values()).sort((left, right) =>
-    left.description.localeCompare(right.description),
-  );
+  return {
+    candidates: Array.from(seen.values()).sort((left, right) =>
+      left.description.localeCompare(right.description),
+    ),
+    loadErrors,
+  };
 }
 
 export function findNearestCandidate(
@@ -122,7 +135,7 @@ async function loadCandidate(
     : undefined;
   const envDartFileUri = resolveProjectFileUri(projectRootPath, config.envDartFile);
   const label = config.displayName?.trim() || path.basename(projectRootPath);
-  const relativeConfigPath = vscode.workspace.asRelativePath(configUri, false);
+  const relativeConfigPath = getWorkspaceRelativePath(workspaceFolder, configUri);
   const detail = [
     `env: ${config.envFile}`,
     `dart: ${config.envDartFile}`,
@@ -194,6 +207,25 @@ function inferProjectRoot(configPath: string): string {
   }
 
   return configDir;
+}
+
+function getWorkspaceRelativePath(
+  workspaceFolder: vscode.WorkspaceFolder,
+  resourceUri: vscode.Uri,
+): string {
+  const relativePath = path.relative(
+    workspaceFolder.uri.fsPath,
+    resourceUri.fsPath,
+  );
+  if (
+    !relativePath ||
+    relativePath.startsWith("..") ||
+    path.isAbsolute(relativePath)
+  ) {
+    return resourceUri.fsPath;
+  }
+
+  return relativePath.split(path.sep).join("/");
 }
 
 function resolveProjectFileUri(

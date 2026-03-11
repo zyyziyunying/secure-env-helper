@@ -35,6 +35,8 @@ Then use either:
 
 The extension resolves the matching config for that file and runs generation for the right project.
 
+Nested Flutter projects inside the current workspace are supported as long as their config files match `secureEnvGenerator.configGlobs`.
+
 ## Commands
 
 - `Secure Env: Generate For Current Project`
@@ -70,6 +72,8 @@ The extension still discovers configs through:
 
 - `secureEnvGenerator.configGlobs`
 
+If a discovered config cannot be loaded, the warning and output channel include the concrete error instead of only reporting that no config was found.
+
 No workspace-local PowerShell script is required anymore.
 
 ## Local development
@@ -95,6 +99,6 @@ This repository is currently configured for local/private use:
 
 - `publisher` is still `local`
 - `license` is still `UNLICENSED`
-- no public repository URL is baked into `package.json` yet
+- repository metadata is present only to support packaging and README link rewriting
 
 Set those fields before marketplace publication.

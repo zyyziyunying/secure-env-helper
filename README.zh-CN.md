@@ -35,6 +35,8 @@
 
 扩展会为该文件解析对应的配置，并在正确的项目目录下执行生成。
 
+只要嵌套 Flutter 项目的配置文件能匹配 `secureEnvGenerator.configGlobs`，在当前工作区内也可以被正确发现和使用。
+
 ## 可用命令
 
 - `Secure Env: Generate For Current Project`
@@ -70,6 +72,8 @@
 
 - `secureEnvGenerator.configGlobs`
 
+如果某个已发现的配置文件无法加载，warning 和输出面板会直接显示具体异常，而不再只提示“没有找到配置”。
+
 现在已经不再依赖工作区内自定义的 PowerShell 脚本。
 
 ## 本地开发
@@ -102,6 +106,6 @@ npm run vscode:prepublish
 
 - `publisher` 仍然是 `local`
 - `license` 仍然是 `UNLICENSED`
-- `package.json` 中还没有配置公开仓库 URL
+- `package.json` 中的仓库信息目前只用于打包和 README 相对链接重写
 
 如果要发布到 Marketplace，请先补齐这些字段。

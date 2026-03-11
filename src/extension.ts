@@ -11,6 +11,7 @@ import { getSettings } from "./secureEnvSettings";
 import {
   EmbeddedGenerationResult,
   SecureEnvCandidate,
+  SecureEnvDiscoveryIssue,
 } from "./secureEnvTypes";
 
 const LAST_CONFIG_KEY = "secureEnvGenerator.lastConfigPath";
@@ -117,11 +118,10 @@ async function pickCandidate(
   context: vscode.ExtensionContext,
   options: { preferNearest: boolean; targetUri?: vscode.Uri },
 ): Promise<SecureEnvCandidate | undefined> {
-  const candidates = await discoverCandidates(outputChannel);
+  const discovery = await discoverCandidates(outputChannel);
+  const { candidates, loadErrors } = discovery;
   if (candidates.length === 0) {
-    void vscode.window.showErrorMessage(
-      "No secure env config files were found. Expected files like tool/secure_env.json or tool/*secure_env*.json.",
-    );
+    await showDiscoveryFailureMessage(loadErrors);
     return undefined;
   }
 
@@ -169,7 +169,8 @@ async function resolveNearestCandidate(
   showErrors: boolean,
   targetUri?: vscode.Uri,
 ): Promise<SecureEnvCandidate | undefined> {
-  const candidates = await discoverCandidates(outputChannel, showErrors);
+  const discovery = await discoverCandidates(outputChannel, showErrors);
+  const { candidates } = discovery;
   if (targetUri) {
     const nearest = findNearestCandidate(candidates, targetUri);
     if (nearest) {
@@ -267,6 +268,28 @@ async function openUri(uri: vscode.Uri): Promise<void> {
 
 function appendError(message: string): void {
   outputChannel.appendLine(`[error] ${message}`);
+}
+
+async function showDiscoveryFailureMessage(
+  loadErrors: SecureEnvDiscoveryIssue[],
+): Promise<void> {
+  if (loadErrors.length === 0) {
+    void vscode.window.showErrorMessage(
+      "No secure env config files were found. Expected files like tool/secure_env.json or tool/*secure_env*.json.",
+    );
+    return;
+  }
+
+  const failureSummary = loadErrors.length === 1
+    ? `1 discovered config failed to load: ${loadErrors[0].displayPath}`
+    : `${loadErrors.length} discovered config files failed to load`;
+  const action = await vscode.window.showErrorMessage(
+    `No usable secure env config files were found. ${failureSummary}. Check the Secure Env Generator output for the real error.`,
+    "Show Output",
+  );
+  if (action === "Show Output") {
+    outputChannel.show(true);
+  }
 }
 
 function findLastCandidate(

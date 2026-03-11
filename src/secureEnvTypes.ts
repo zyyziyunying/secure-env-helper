@@ -26,6 +26,17 @@ export interface SecureEnvCandidate {
   useFvm: UseFvm;
 }
 
+export interface SecureEnvDiscoveryIssue {
+  configUri: vscode.Uri;
+  displayPath: string;
+  errorMessage: string;
+}
+
+export interface SecureEnvDiscoveryResult {
+  candidates: SecureEnvCandidate[];
+  loadErrors: SecureEnvDiscoveryIssue[];
+}
+
 export interface SecureEnvSettings {
   configGlobs: string[];
   autoOpenOutput: boolean;
