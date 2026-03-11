@@ -1,5 +1,7 @@
 # Secure Env Helper
 
+[中文文档](./README.zh-CN.md)
+
 VS Code extension for workspace-local `flutter_secure_dotenv` generation flows.
 
 It removes the need to remember:
